@@ -1,1 +1,50 @@
-# LMC
+# LMC: Large Model Collaboration with Cross-assessment for Training-Free Open-Set Object Recognition, NeurIPS 2023
+
+<sup>1</sup>Haoxuan Qu\*,
+<sup>1</sup>Xiaofei Hui\*,
+<sup>2</sup>Yujun Cai,
+<sup>1</sup>Jun Liu,
+
+\* equal contribution
+
+<sup>1</sup>Singapore University of Technology and Design, <sup>2</sup>Meta
+
+[[Paper]](https://github.com/Harryqu123/LMC/blob/main/main.pdf) | [[Arxiv]](https://arxiv.org/pdf/****.pdf) | [[SUTD-VLG Lab]](https://github.com/sutdcv)
+
+## Overview of LMC
+
+<p align="center"> <img src="./overview.png" width="100%"> </p>
+
+## Environment
+
+The code is developed and tested under the following environment:
+
+-   Python 3.9
+-   PyTorch 2.0.0
+-   CUDA 11.7
+
+You can create the environment via:
+
+```
+conda create -n lmc python=3.9
+conda activate lmc
+conda install pytorch==2.0.0 torchvision==0.15.0 torchaudio==2.0.0 pytorch-cuda=11.7 -c pytorch -c nvidia
+pip install ftfy regex tqdm scikit-learn scipy pandas six timm
+pip install transformers openai
+pip install git+https://github.com/openai/CLIP.git
+```
+
+## Dataset
+
+Tinyimagenet can be downloaded by running `tinyimagenet.sh`
+
+## Evaluation 
+To evaluate using our provided virtual open-set classes, please unzip `tiny_img.zip` and run:
+
+`python tinyimagenet_eval_msp.py --save_dir path\to\save\result --image_path path\to\unzipped\images`
+
+Note that here we provide virtual open-set classes and generated images that can yield slightly better results than the results provided in our paper for Tinyimagenet.
+
+
+## Acknowledgements
+Part of our code is borrowed from [ZOC](https://github.com/sesmae/ZOC). We thank the authors for releasing the codes.
