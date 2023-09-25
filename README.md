@@ -9,7 +9,7 @@
 
 <sup>1</sup>Singapore University of Technology and Design, <sup>2</sup>Meta
 
-[[Paper]](https://github.com/Harryqu123/LMC/blob/main/main.pdf) | [[Arxiv]](https://arxiv.org/pdf/****.pdf) | [[SUTD-VLG Lab]](https://github.com/sutdcv)
+[[Paper]](https://github.com/Harryqu123/LMC/blob/main/main.pdf) | [[Arxiv]](https://arxiv.org/pdf/2309.12780.pdf) | [[SUTD-VLG Lab]](https://github.com/sutdcv)
 
 ## Overview of LMC
 
