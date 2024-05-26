@@ -49,7 +49,7 @@ To load CLIP pre-trained weights, you can visit official [CLIP](https://github.c
 To load DINO pre-trained weights, you can visit official [DINOv2]() and download "ViT-B/14 distilled" to `pretrained_model` using download address in [this page](https://github.com/facebookresearch/dinov2#pretrained-models).
 
 ## Evaluation 
-To evaluate using our provided virtual open-set classes, please unzip `tiny_img.zip` and run:
+To evaluate our framework (e.g., on tinyimagenet) using our provided virtual open-set classes, please unzip `tiny_img.zip` and run:
 
 `python tinyimagenet_eval_msp.py --save_dir path\to\save\result --image_path path\to\unzipped\images`
 
