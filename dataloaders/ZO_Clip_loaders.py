@@ -32,6 +32,41 @@ def tiny_single_isolated_class_dino_loader(root="data/dalle_generated/union_set"
        loaders_dict[class_label] = loader
     return loaders_dict, tiny_dino_labels
 
+def cifar10_single_isolated_class_dino_loader(root="data/dalle_generated/union_set", labels=[]):
+    loaders_dict = {}
+    transform = Compose([
+        Resize(224, interpolation=3),
+        CenterCrop(224),
+        ToTensor(),
+        Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+    ])
+    for class_label in labels:
+       dataset = ImageFolder(root = root, transform = transform)
+       idx = [i for i in range(len(dataset)) if dataset.imgs[i][1] == dataset.class_to_idx[class_label]]
+       # build the appropriate subset
+       subset = Subset(dataset, idx)
+       loader = DataLoader(dataset=subset, batch_size=1, num_workers=4)
+       loaders_dict[class_label] = loader
+    return loaders_dict, labels
+
+def cifarplus_single_isolated_class_dino_loader(root="data/dalle_generated/union_set", labels=[]):
+    loaders_dict = {}
+    transform = Compose([
+        Resize(224, interpolation=3),
+        CenterCrop(224),
+        ToTensor(),
+        Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+    ])
+    for class_label in labels:
+       dataset = ImageFolder(root = root, transform = transform)
+       idx = [i for i in range(len(dataset)) if dataset.imgs[i][1] == dataset.class_to_idx[class_label]]
+       # build the appropriate subset
+       subset = Subset(dataset, idx)
+       loader = DataLoader(dataset=subset, batch_size=1, num_workers=4)
+       loaders_dict[class_label] = loader
+    return loaders_dict
+
+
 def tinyimage_get_all_labels():
     dataset = ImageFolder(root='./data/tiny-imagenet-200/val')
     a = dataset.class_to_idx
@@ -139,3 +174,112 @@ def tinyimage_single_isolated_class_loader(train=False):
             loaders_dict[semantic_label] = loader
         return all_seen_labels, loaders_dict
 
+class cifar10_isolated_class(Dataset):
+    def __init__(self, class_label=None):
+        assert class_label, 'a semantic label should be specified'
+        super(cifar10_isolated_class, self).__init__()
+        self.transform = Compose([
+            ToPILImage(),
+            Resize(224, interpolation=Image.BICUBIC),
+            CenterCrop(224),
+            ToTensor(),
+            Normalize((0.4913, 0.4821, 0.4465), (0.2470, 0.2434, 0.2615))
+        ])
+        cifar10 = CIFAR10(root='./data', train=False, download=True)
+
+        class_mask = np.array(cifar10.targets) == cifar10.class_to_idx[class_label]
+        self.data = cifar10.data[class_mask]
+        self.targets = np.array(cifar10.targets)[class_mask]
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, index):
+        return self.transform(self.data[index])
+
+
+def cifar10_single_isolated_class_loader(batch_size=1):
+    loaders_dict = {}
+    cifar10_labels = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+
+    for label in cifar10_labels:
+       dataset = cifar10_isolated_class(label)
+       loader = DataLoader(dataset=dataset, batch_size=batch_size, num_workers=4)
+       loaders_dict[label] = loader
+    return loaders_dict
+
+class cifarplus():
+    def __init__(self, class_list):
+        self.cifar100_classes = ['apple', 'aquarium_fish', 'baby', 'bear', 'beaver', 'bed', 'bee', 
+                                 'beetle', 'bicycle', 'bottle', 'bowl', 'boy', 'bridge', 'bus', 'butterfly', 
+                                 'camel', 'can', 'castle', 'caterpillar', 'cattle', 'chair', 'chimpanzee', 
+                                 'clock', 'cloud', 'cockroach', 'couch', 'crab', 'crocodile', 'cup', 'dinosaur', 
+                                 'dolphin', 'elephant', 'flatfish', 'forest', 'fox', 'girl', 'hamster', 'house', 
+                                 'kangaroo', 'keyboard', 'lamp', 'lawn_mower', 'leopard', 'lion', 'lizard', 
+                                 'lobster', 'man', 'maple_tree', 'motorcycle', 'mountain', 'mouse', 'mushroom', 
+                                 'oak_tree', 'orange', 'orchid', 'otter', 'palm_tree', 'pear', 'pickup_truck',
+                                 'pine_tree', 'plain', 'plate', 'poppy', 'porcupine', 'possum', 'rabbit', 'raccoon', 
+                                 'ray', 'road', 'rocket', 'rose', 'sea', 'seal', 'shark', 'shrew', 'skunk', 
+                                 'skyscraper', 'snail', 'snake', 'spider', 'squirrel', 'streetcar', 'sunflower', 
+                                 'sweet_pepper', 'table', 'tank', 'telephone', 'television', 'tiger', 'tractor', 
+                                 'train', 'trout', 'tulip', 'turtle', 'wardrobe', 'whale', 'willow_tree', 'wolf', 
+                                 'woman', 'worm']
+        self.class_list = class_list
+        self.transform = Compose([
+            Resize(224, interpolation=Image.BICUBIC),
+            CenterCrop(224), 
+            ToTensor(),
+            Normalize((0.4913, 0.4821, 0.4465), (0.2470, 0.2434, 0.2615))
+        ])
+
+        if len(self.class_list) == 4:
+           cifar10 = CIFAR10(root='./data', train=False, download=True, transform=self.transform)
+           inds = [i for i in range(len(cifar10.targets)) if cifar10.targets[i] in self.class_list]
+           self.data = cifar10.data[inds]
+           self.targets = np.array(cifar10.targets)[inds].tolist()
+        else:
+            cifar100 = CIFAR100(root='./data', train=False, download=True, transform=self.transform)
+            inds = [i for i in range(len(cifar100.targets)) if cifar100.targets[i] in self.class_list]
+            self.data = cifar100.data[inds]
+            self.targets = np.array(cifar100.targets)[inds].tolist()
+
+    def __len__(self):
+        return len(self.targets)
+
+    def __getitem__(self, index):
+        img = self.transform(Image.fromarray(self.data[index]).convert('RGB'))
+        return img, self.targets[index]
+    
+def cifarplus_loader():
+
+    cifar10_labels = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+    seen_labels = {}
+
+    in_dict = {}
+    for idx, list_ in enumerate(splits_2020['cifar100']):
+        list_ = sorted(list_)
+        in_dict['seen-{}'.format(str(idx+1))] = list_
+        seen_labels['seen-{}'.format(str(idx+1))] = [cifar10_labels[i] for i in list_]
+
+    out_dict = {}
+    plus10_split = splits_2020['cifar100-10']
+    plus50_split = splits_2020['cifar100-50']
+
+    for idx, split in enumerate(plus10_split):
+        out_dict['cifar100-10-{}'.format(str(idx+1))] = split
+    for idx, split in enumerate(plus50_split):
+        out_dict['cifar100-50-{}'.format(str(idx+1))] = split
+
+    in_loaders = {}
+    for key, list in in_dict.items():
+        in_dataset = cifarplus(list)
+        in_loader = DataLoader(dataset=in_dataset, batch_size=1, num_workers=4, shuffle=False)
+        in_loaders[key] = in_loader
+
+
+    out_loaders = {}
+    for key in out_dict.keys():
+        out_dataset = cifarplus(out_dict[key])
+        out_loaders[key] = DataLoader(dataset=out_dataset, batch_size=1, num_workers=4, shuffle=False)
+
+    return in_loaders, out_loaders, seen_labels
